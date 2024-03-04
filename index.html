@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Whatever Counter</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.05);
+          opacity: 0.7;
+        }
+      }
+      .pulse-animation {
+        animation: pulse 1s infinite;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 font-sans antialiased">
+    <div class="min-h-screen flex flex-col items-center justify-center">
+      <h1 class="text-5xl font-bold mb-8">Whatever Counter</h1>
+      <div class="flex flex-col items-center">
+        <span class="absolute bottom-0 right-0 text-xs">count</span>
+        <div id="counter" class="text-9xl font-bold mb-4">0</div>
+        <button
+          id="counterButton"
+          class="relative text-6xl rounded-full w-32 h-32 flex items-center justify-center bg-white shadow-lg border-2 border-gray-300"
+        >
+          🎙️
+        </button>
+      </div>
+      <div id="word"></div>
+    </div>
+
+    <script>
+      let count = 0;
+      document.addEventListener('DOMContentLoaded', () => {
+        let recognition;
+        if ('webkitSpeechRecognition' in window) {
+          recognition = new webkitSpeechRecognition();
+          recognition.continuous = true;
+          recognition.interimResults = true;
+          recognition.lang = 'en-US';
+
+          recognition.onresult = (event) => {
+            console.log(event);
+            const result = event.results[event.results.length - 1];
+            const text = result[0].transcript;
+            console.log(result.isFinal);
+            if (result.isFinal) updateCounter(text);
+          };
+        } else {
+          alert('Speech recognition is not supported in your browser');
+        }
+        const counterButton = document.getElementById('counterButton');
+        const counterDisplay = document.getElementById('counter');
+
+        counterButton.addEventListener('click', () => {
+          if (!counterButton.classList.contains('pulse-animation')) {
+            counterButton.classList.add('pulse-animation');
+            recognition.start();
+          } else {
+            counterButton.classList.remove('pulse-animation');
+            recognition.stop();
+          }
+        });
+      });
+
+      function updateCounter(text) {
+        const counterDisplay = document.getElementById('counter');
+        const words = text.toLowerCase().split(/\s+/); // Convert to lowercase and split into words
+        words.forEach((word) => {
+          console.log(word);
+          const wordDisplay = document.getElementById('word');
+          wordDisplay.textContent = word;
+          if (word === 'whatever') {
+            count++;
+            counterDisplay.textContent = `${count}`;
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
